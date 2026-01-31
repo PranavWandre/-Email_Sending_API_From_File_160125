@@ -14,14 +14,14 @@ public class EmailService {
     private final JavaMailSender mailSender;
     private final ExcelUpdateService excelUpdateService;
 
-    public EmailService(JavaMailSender mailSender,
-                        ExcelUpdateService excelUpdateService) {
+    public EmailService(JavaMailSender mailSender, ExcelUpdateService excelUpdateService) {
         this.mailSender = mailSender;
         this.excelUpdateService = excelUpdateService;
     }
 
     @Async("mailExecutor")
-    public void sendMail(String to, String subject, String body, String filePath) {
+    public void sendMail(String to, String subject, String body, String filePath,
+                         String excelPath, String sheetName, String emailColumn) {
 
         try {
             MimeMessage message = mailSender.createMimeMessage();
@@ -40,11 +40,10 @@ public class EmailService {
 
             mailSender.send(message);
 
-         
-            excelUpdateService.updateStatus(to, "SENT");
+            excelUpdateService.updateStatus(excelPath, sheetName, emailColumn, to, "SENT");
 
         } catch (Exception e) {
-            excelUpdateService.updateStatus(to, "FAILED");
+            excelUpdateService.updateStatus(excelPath, sheetName, emailColumn, to, "FAILED");
         }
     }
 }
